@@ -1,0 +1,120 @@
+# sase-research
+
+**This is plugin code, not research content.** `sase-research` (this repo) is an
+installable Python plugin for [sase](https://github.com/sase-org/sase) that ships the
+`research` artifact-reference provider, the `research-highlights` file-hook provider,
+and the `#research*` xprompts. The durable research reports and generated media
+themselves live in the separate [`sase-org/sase--research`](https://github.com/sase-org/sase--research)
+content sidecar repo -- note the double hyphen. If you were looking for research write-ups
+rather than plugin code, that is the repo you want.
+
+## Installation
+
+```bash
+pip install sase-research
+```
+
+Installing the distribution registers four entry points that sase discovers
+automatically; a linked-repo clone alone does not install the package or register its
+entry points.
+
+## Entry points
+
+| Group                | Name                   | Target                                            |
+| --------------------- | ---------------------- | -------------------------------------------------- |
+| `sase_artifact_refs`  | `research`              | `sase_research.provider:RESEARCH_REF_PROVIDER`      |
+| `sase_file_hooks`     | `research-highlights`   | `sase_research.provider:RESEARCH_HIGHLIGHTS_HOOK`   |
+| `sase_xprompts`       | `sase_research`         | `sase_research`                                     |
+| `sase_config`         | `sase_research`         | `sase_research`                                     |
+
+## Provider configuration
+
+Point a project's `research` sidecar role at this plugin's ref provider with one line:
+
+```yaml
+repos:
+  sidecar:
+    custom:
+      research:
+        ref:
+          use: research
+```
+
+Wire the file hook the same way, supplying the one field the provider deliberately
+leaves unset -- the actual command is local to your machine:
+
+```yaml
+file_hooks:
+  - use: research-highlights
+    command: bob highlights create --include-id
+```
+
+Both `use:` and a fully inline spec normalize to the same effective policy; overriding
+individual fields (e.g. `inventory.globs`) deep-merges over the provider's base spec,
+with list-valued fields replacing rather than concatenating.
+
+### The `research` ref provider
+
+Schema version 1, kind `research`. Inventory: `20*/**/*.md` (every dated report,
+including `__a`/`__b` swarm drafts). Declared frontmatter properties: `create_time` and
+`updated_time` (datetime), `status` (string), `tags` (string list). Publication links to
+the VCS permalink and writes a `Referenced By` table back into cited reports.
+
+### The `research-highlights` file hook
+
+Renders new research reports into Highlights PDFs for the Obsidian reading queue.
+Restricted to the `research` sidecar, `ADD` operations only, and excludes agents matching
+`research.*.cld` / `research.*.cdx` (the swarm's own participants) plus `__a`/`__b` draft
+files -- a Highlights PDF is only wanted for the consolidated report, not each researcher's
+draft.
+
+**The two glob sets differ on purpose.** The ref provider's inventory keeps swarm drafts
+because citing a specific researcher's draft with `@research:...` is legitimate; the file
+hook excludes them because a Highlights PDF per draft is noise. This is not a porting bug.
+
+`command` is intentionally left unset in the packaged template and marked `required`, so
+`use: research-highlights` without a local `command:` override fails soft with a
+diagnostic rather than running someone else's command on your machine.
+
+## Xprompts
+
+- `#research` -- write research to a new dated file in the `research` artifact repo.
+- `#research/image` -- generate an infographic from a research file's main points.
+- `#research/more` -- extend a research file with further research, filling gaps.
+- `#research/prompt` -- research prior art and alternatives for a prompt, then `#research`
+  it.
+- `#research_swarm` -- launch two independent researchers plus a lead who consolidates
+  their reports and generates an infographic; a four-segment xprompt swarm.
+
+## Defaults
+
+`default_config.yml` ships the `research_a` / `research_b` / `research_lead` model
+aliases, the `researchers` bucket, and the `research` tribe display config, so
+`#research_swarm` works out of the box on a fresh install. Project or user config still
+overrides these by normal layer precedence.
+
+## Development
+
+```bash
+just install    # Install in editable mode with dev deps
+just lint       # ruff check + mypy
+just fmt        # Auto-format
+just test       # pytest (excludes the slow wheel contract test)
+just test-wheel # Build a real wheel, install it fresh, verify entry points/resources
+just check      # lint + test
+```
+
+This plugin depends on `sase>=0.17.0` -- the first sase release with the
+`sase_artifact_refs` / `sase_file_hooks` provider registry -- which has not reached PyPI
+yet. `just install` and CI both build against coordinated sibling `sase` and `sase-core`
+source checkouts in the meantime; see `Justfile` and `.github/workflows/ci.yml`.
+
+## Documentation
+
+- [Architecture](docs/architecture.md)
+- [Configuration](docs/configuration.md)
+- [XPrompts](docs/xprompts.md)
+
+## License
+
+MIT

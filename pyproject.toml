@@ -1,0 +1,84 @@
+[build-system]
+requires = ["hatchling>=1.27"]
+build-backend = "hatchling.build"
+
+[project]
+name = "sase-research"
+version = "0.1.0"
+description = "Research artifact-reference and file-hook provider plugin for sase"
+readme = "README.md"
+requires-python = ">=3.12"
+license = "MIT"
+license-files = ["LICENSE"]
+dependencies = [
+    # The sase_artifact_refs/sase_file_hooks provider registry this plugin
+    # targets lands on sase master after 0.16.0; bump this floor once a
+    # release containing it reaches PyPI (see docs/development.md).
+    "sase>=0.17.0",
+]
+
+[project.urls]
+Repository = "https://github.com/sase-org/sase-research"
+Issues = "https://github.com/sase-org/sase-research/issues"
+
+[project.optional-dependencies]
+dev = [
+    "ruff",
+    "mypy",
+    "pytest",
+    "pytest-cov",
+    "pytest-mock",
+    "build",
+]
+
+[project.entry-points."sase_artifact_refs"]
+research = "sase_research.provider:RESEARCH_REF_PROVIDER"
+
+[project.entry-points."sase_file_hooks"]
+research-highlights = "sase_research.provider:RESEARCH_HIGHLIGHTS_HOOK"
+
+[project.entry-points."sase_xprompts"]
+sase_research = "sase_research"
+
+[project.entry-points."sase_config"]
+sase_research = "sase_research"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/sase_research"]
+
+[tool.ruff]
+target-version = "py312"
+line-length = 88
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+select = ["E", "W", "F", "B", "C4", "UP"]
+ignore = ["E501", "W291", "F401", "F821", "B007"]
+
+[tool.mypy]
+files = ["src"]
+mypy_path = ["src"]
+python_version = "3.12"
+check_untyped_defs = true
+disallow_incomplete_defs = true
+disallow_untyped_defs = true
+ignore_missing_imports = false
+
+[[tool.mypy.overrides]]
+module = ["sase.*"]
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src", "tests"]
+addopts = [
+    "--import-mode=importlib",
+    "--strict-markers",
+    "--strict-config",
+    "-v",
+    "-m",
+    "not wheel",
+]
+markers = [
+    "wheel: marks tests that build and install a real wheel into a fresh venv (slow)",
+]

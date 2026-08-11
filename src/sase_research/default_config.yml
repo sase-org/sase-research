@@ -1,0 +1,24 @@
+llm_provider:
+  model_aliases:
+    custom:
+      research_a:
+        model: codex/gpt-5.6-sol
+        description: "Primary independent research-swarm researcher."
+        bucket: researchers
+      research_b:
+        model: claude/opus
+        description: "Assisting (second-opinion) research-swarm agents."
+        bucket: researchers
+      research_lead:
+        model: "@smartest"
+        description: "Final research-swarm lead and consolidator."
+        bucket: researchers
+    buckets:
+      researchers:
+        description: "Research-swarm model roles: primary researcher, second-opinion researcher, lead/consolidator."
+ace:
+  tribes:
+    research:
+      icon: "∴"
+      color: "#5FD7AF"
+      description: "Research swarm agents from #research_swarm that ship durable reports instead of code changes."

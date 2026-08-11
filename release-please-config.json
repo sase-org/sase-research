@@ -1,0 +1,15 @@
+{
+  "$schema": "https://raw.githubusercontent.com/googleapis/release-please/main/schemas/config.json",
+  "bootstrap-sha": "6b63282d4f4bfb3953b2ce67f04d7193b132a04f",
+  "release-type": "python",
+  "initial-version": "0.1.0",
+  "include-v-in-tag": true,
+  "include-component-in-tag": false,
+  "bump-minor-pre-major": true,
+  "bump-patch-for-minor-pre-major": true,
+  "packages": {
+    ".": {
+      "component": "sase-research"
+    }
+  }
+}

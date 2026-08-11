@@ -1,0 +1,52 @@
+# XPrompts
+
+## `#research` -- Write Research to a Dated File
+
+Writes the current research to a new markdown file under
+`$(sase repo path research --ensure)/$(date +%Y%m)/`.
+
+## `#research/image` -- Generate an Infographic
+
+Generates an infographic (via GPT image) illustrating a research markdown file's main
+points, writing the image alongside the source file.
+
+## `#research/more` -- Extend Existing Research
+
+Extends an existing research markdown file with further research, filling gaps left by
+a previous agent, following the research repo's `README.md` conventions when present.
+
+## `#research/prompt` -- Research a Prompt
+
+### Input
+
+| Name     | Type | Description                    |
+| -------- | ---- | ------------------------------ |
+| `prompt` | text | The prompt or topic to research |
+
+Investigates prior art and alternative solutions for the given prompt, ending with a
+recommendation, then hands off to `#research` to write it up.
+
+## `#research_swarm` -- Two Researchers Plus a Lead
+
+### Input
+
+| Name     | Type | Description                                         |
+| -------- | ---- | ---------------------------------------------------- |
+| `prompt` | text | Research topic or question for the swarm to investigate |
+
+A four-segment xprompt swarm:
+
+1. **`<clan>.cdx`** -- the primary researcher (`@research_a`), tagged with the
+   `research` tribe.
+2. **`<clan>.cld`** -- the second-opinion researcher (`@research_b`), run independently
+   in parallel.
+3. **`<clan>.final`** -- the lead researcher (`@research_lead`), waiting on both prior
+   segments' chat transcripts, who reads both reports, does further research, and writes
+   a consolidated report merging all three perspectives. Individual researcher reports
+   move to `<name>__a.md` / `<name>__b.md`; the consolidated report is
+   `<name>/<name>.md`.
+4. **`<clan>.image`** -- waits on and forks from the lead's segment, then runs
+   `#research/image` against the consolidated report.
+
+Depends on the `research_a` / `research_b` / `research_lead` model aliases and the
+`researchers` bucket from this plugin's default config.

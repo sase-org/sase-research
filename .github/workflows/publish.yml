@@ -1,0 +1,150 @@
+name: Publish
+
+on:
+  push:
+    branches: [master]
+  workflow_dispatch:
+    inputs:
+      publish_existing:
+        description: Publish the existing release artifacts
+        required: true
+        type: boolean
+        default: false
+
+env:
+  SASE_PYTHON_REF: master
+  SASE_RUST_CORE_REF: master
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      issues: write
+      pull-requests: write
+    outputs:
+      release_created: ${{ steps.release.outputs.release_created || 'false' }}
+    steps:
+      - uses: googleapis/release-please-action@v5
+        if: ${{ github.event_name == 'push' }}
+        id: release
+        with:
+          token: ${{ secrets.SASE_RELEASE_TOKEN || secrets.GITHUB_TOKEN }}
+          config-file: release-please-config.json
+          manifest-file: .release-please-manifest.json
+
+  build:
+    needs: release
+    if: ${{ needs.release.outputs.release_created == 'true' || (github.event_name == 'workflow_dispatch' && inputs.publish_existing == true) }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v4
+        with:
+          enable-cache: true
+          cache-dependency-glob: "**/pyproject.toml"
+      - name: Set up Python
+        run: uv python install 3.12
+      - name: Build package
+        run: uv build
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: dist/
+
+  install-smoke:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: dist/
+      - name: Check out SASE
+        uses: actions/checkout@v4
+        with:
+          repository: sase-org/sase
+          ref: ${{ env.SASE_PYTHON_REF }}
+          path: .sase-deps/sase
+          token: ${{ secrets.SASE_RELEASE_TOKEN || github.token }}
+      - name: Check out SASE Rust core
+        uses: actions/checkout@v4
+        with:
+          repository: sase-org/sase-core
+          ref: ${{ env.SASE_RUST_CORE_REF }}
+          path: .sase-deps/sase-core
+          token: ${{ secrets.SASE_RELEASE_TOKEN || github.token }}
+      - uses: astral-sh/setup-uv@v4
+      - uses: extractions/setup-just@v2
+      - uses: dtolnay/rust-toolchain@stable
+      - name: Set up Python
+        run: uv python install 3.12
+      - name: Install built sase-research wheel into a fresh venv
+        run: |
+          uv venv --python 3.12 /tmp/smoke-venv
+          printf -- '-e %s\n' "$(realpath .sase-deps/sase)" > /tmp/sase-overrides.txt
+          uv pip install --python /tmp/smoke-venv/bin/python --overrides /tmp/sase-overrides.txt dist/*.whl
+          just install-source-sase /tmp/smoke-venv/bin/python
+      - name: Smoke check
+        run: |
+          /tmp/smoke-venv/bin/python - <<'PY'
+          from importlib.metadata import entry_points
+
+          import sase_research
+
+          expected = {
+              "sase_artifact_refs": {
+                  "research": "sase_research.provider:RESEARCH_REF_PROVIDER"
+              },
+              "sase_file_hooks": {
+                  "research-highlights": "sase_research.provider:RESEARCH_HIGHLIGHTS_HOOK"
+              },
+              "sase_config": {"sase_research": "sase_research"},
+              "sase_xprompts": {"sase_research": "sase_research"},
+          }
+
+          discovered = entry_points()
+          for group, entries in expected.items():
+              group_entries = {
+                  entry_point.name: entry_point.value
+                  for entry_point in discovered.select(group=group)
+              }
+              for name, value in entries.items():
+                  actual = group_entries.get(name)
+                  if actual != value:
+                      raise SystemExit(
+                          f"{group} entry point {name!r}: expected {value!r}, got {actual!r}"
+                      )
+
+          assert sase_research
+          PY
+      - name: Assemble the real artifact provider registry
+        run: |
+          /tmp/smoke-venv/bin/python - <<'PY'
+          import sase.config  # avoid a circular import on a fresh interpreter
+          from sase.artifact_providers import assemble_artifact_provider_registry
+
+          registry = assemble_artifact_provider_registry()
+          assert registry.diagnostics == (), registry.diagnostics
+          assert "research" in registry.ref_providers_by_id
+          assert "research-highlights" in registry.file_hook_providers_by_id
+          PY
+
+  publish:
+    needs: [release, build, install-smoke]
+    if: ${{ needs.release.outputs.release_created == 'true' || (github.event_name == 'workflow_dispatch' && inputs.publish_existing == true) }}
+    runs-on: ubuntu-latest
+    environment: pypi
+    permissions:
+      id-token: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: dist/
+      - uses: pypa/gh-action-pypi-publish@release/v1

@@ -1,0 +1,54 @@
+name: CI
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+
+permissions:
+  contents: read
+
+env:
+  SASE_PYTHON_REF: master
+  SASE_RUST_CORE_REF: master
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.12", "3.13"]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check out SASE
+        uses: actions/checkout@v4
+        with:
+          repository: sase-org/sase
+          ref: ${{ env.SASE_PYTHON_REF }}
+          path: .sase-deps/sase
+          token: ${{ secrets.SASE_RELEASE_TOKEN || github.token }}
+      - name: Check out SASE Rust core
+        uses: actions/checkout@v4
+        with:
+          repository: sase-org/sase-core
+          ref: ${{ env.SASE_RUST_CORE_REF }}
+          path: .sase-deps/sase-core
+          token: ${{ secrets.SASE_RELEASE_TOKEN || github.token }}
+      - uses: astral-sh/setup-uv@v4
+        with:
+          enable-cache: true
+          cache-dependency-glob: "**/pyproject.toml"
+      - uses: extractions/setup-just@v2
+      - uses: dtolnay/rust-toolchain@stable
+      - name: Set up Python ${{ matrix.python-version }}
+        run: |
+          uv python install ${{ matrix.python-version }}
+          uv venv --python ${{ matrix.python-version }} .venv
+      - name: Install dependencies
+        run: just install
+      - name: Lint
+        if: ${{ matrix.python-version == '3.12' }}
+        run: just lint
+      - name: Run tests
+        run: just test
