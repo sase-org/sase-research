@@ -1,4 +1,4 @@
-"""Shared fixtures for sase-research contract tests."""
+"""Shared fixtures for sase-research-artifacts contract tests."""
 
 from __future__ import annotations
 
@@ -32,7 +32,7 @@ def _reset_registry_cache() -> Iterator[None]:
 class FakeDist:
     """A minimal stand-in for ``importlib.metadata.Distribution``."""
 
-    name: str = "sase-research"
+    name: str = "sase-research-artifacts"
     version: str = "0.1.0"
 
     @property

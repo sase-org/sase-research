@@ -30,8 +30,8 @@ def test_ci_builds_coordinated_sase_sources() -> None:
 def test_justfile_requires_both_source_overrides_together() -> None:
     justfile = _read("Justfile")
 
-    assert "SASE_RESEARCH_SASE_SOURCE_DIR" in justfile
-    assert "SASE_RESEARCH_SASE_CORE_SOURCE_DIR" in justfile
+    assert "SASE_RESEARCH_ARTIFACTS_SASE_SOURCE_DIR" in justfile
+    assert "SASE_RESEARCH_ARTIFACTS_SASE_CORE_SOURCE_DIR" in justfile
     assert "crates/sase_core_py" in justfile
     assert "develop --release" in justfile
     assert "maturin" in justfile

@@ -2,8 +2,8 @@
 
 ## Plugin System
 
-`sase-research` registers four entry points against the host `sase` package. sase's
-registry instantiates each discovered entry point once and calls both
+`sase-research-artifacts` registers four entry points against the host `sase` package.
+sase's registry instantiates each discovered entry point once and calls both
 `sase_artifact` hookspec methods on it (`artifact_ref_provider_specs`,
 `artifact_file_hook_provider_specs`), regardless of which entry-point group discovered
 it. Each hookimpl object here implements exactly one of the two methods, so registering
@@ -13,12 +13,12 @@ from the same registration.
 
 ### Entry Points
 
-| Group                | Name                  | Target                                            |
-| --------------------- | --------------------- | -------------------------------------------------- |
-| `sase_artifact_refs` | `research`            | `sase_research.provider:RESEARCH_REF_PROVIDER`      |
-| `sase_file_hooks`    | `research-highlights` | `sase_research.provider:RESEARCH_HIGHLIGHTS_HOOK`   |
-| `sase_xprompts`      | `sase_research`       | `sase_research` (package, for `xprompts/*.md`)      |
-| `sase_config`        | `sase_research`       | `sase_research` (package, for `default_config.yml`) |
+| Group                | Name                      | Target                                                        |
+| -------------------- | ------------------------- | ------------------------------------------------------------- |
+| `sase_artifact_refs` | `research`                | `sase_research_artifacts.provider:RESEARCH_REF_PROVIDER`      |
+| `sase_file_hooks`    | `research-highlights`     | `sase_research_artifacts.provider:RESEARCH_HIGHLIGHTS_HOOK`   |
+| `sase_xprompts`      | `sase_research_artifacts` | `sase_research_artifacts` (package, for `xprompts/*.md`)      |
+| `sase_config`        | `sase_research_artifacts` | `sase_research_artifacts` (package, for `default_config.yml`) |
 
 ### `provider.py`
 
@@ -45,7 +45,8 @@ effective policy -- see `docs/configuration.md`.
 ## Xprompt and Default-Config Discovery
 
 `sase_xprompts` and `sase_config` are resource entry-point groups: the entry point
-resolves to the bare `sase_research` package (no attribute), and sase locates
+resolves to the bare `sase_research_artifacts` package (no attribute), and sase locates
 `xprompts/*.md` and `default_config.yml` inside it via `importlib.resources`. Both ship
-automatically in a hatchling wheel because they live inside `src/sase_research/` and are
-tracked in git -- no separate package-data declaration is needed.
+automatically in a hatchling wheel because they live inside
+`src/sase_research_artifacts/` and are tracked in git -- no separate package-data
+declaration is needed.

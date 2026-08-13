@@ -1,17 +1,18 @@
-# sase-research
+# sase-research-artifacts
 
-**This is plugin code, not research content.** `sase-research` (this repo) is an
-installable Python plugin for [sase](https://github.com/sase-org/sase) that ships the
-`research` artifact-reference provider, the `research-highlights` file-hook provider,
-and the `#research*` xprompts. The durable research reports and generated media
-themselves live in the separate [`sase-org/sase--research`](https://github.com/sase-org/sase--research)
-content sidecar repo -- note the double hyphen. If you were looking for research write-ups
-rather than plugin code, that is the repo you want.
+`sase-research-artifacts` is an installable Python plugin for
+[sase](https://github.com/sase-org/sase) that ships the `research`
+artifact-reference provider, the `research-highlights` file-hook provider, the
+`#research*` xprompts, and default model/tribe config for research workflows.
+Durable research reports and generated media live in the
+[`sase-org/sase--research`](https://github.com/sase-org/sase--research) sidecar; this
+plugin supplies the SASE integrations that make those artifacts discoverable and
+usable from agent workflows.
 
 ## Installation
 
 ```bash
-pip install sase-research
+pip install sase-research-artifacts
 ```
 
 Installing the distribution registers four entry points that sase discovers
@@ -20,12 +21,12 @@ entry points.
 
 ## Entry points
 
-| Group                | Name                   | Target                                            |
-| --------------------- | ---------------------- | -------------------------------------------------- |
-| `sase_artifact_refs`  | `research`              | `sase_research.provider:RESEARCH_REF_PROVIDER`      |
-| `sase_file_hooks`     | `research-highlights`   | `sase_research.provider:RESEARCH_HIGHLIGHTS_HOOK`   |
-| `sase_xprompts`       | `sase_research`         | `sase_research`                                     |
-| `sase_config`         | `sase_research`         | `sase_research`                                     |
+| Group                | Name                      | Target                                                        |
+| -------------------- | ------------------------- | ------------------------------------------------------------- |
+| `sase_artifact_refs` | `research`                | `sase_research_artifacts.provider:RESEARCH_REF_PROVIDER`      |
+| `sase_file_hooks`    | `research-highlights`     | `sase_research_artifacts.provider:RESEARCH_HIGHLIGHTS_HOOK`   |
+| `sase_xprompts`      | `sase_research_artifacts` | `sase_research_artifacts`                                     |
+| `sase_config`        | `sase_research_artifacts` | `sase_research_artifacts`                                     |
 
 ## Provider configuration
 

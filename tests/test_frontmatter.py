@@ -8,7 +8,7 @@ from datetime import datetime
 
 from sase.xprompt.loader_parsing import parse_yaml_front_matter
 
-from sase_research.provider import RESEARCH_REF_PROVIDER_SPEC
+from sase_research_artifacts.provider import RESEARCH_REF_PROVIDER_SPEC
 
 _SAMPLE_DOCUMENT = """\
 ---

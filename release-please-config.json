@@ -9,7 +9,7 @@
   "bump-patch-for-minor-pre-major": true,
   "packages": {
     ".": {
-      "component": "sase-research"
+      "component": "sase-research-artifacts"
     }
   }
 }

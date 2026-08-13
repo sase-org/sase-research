@@ -3,7 +3,7 @@ requires = ["hatchling>=1.27"]
 build-backend = "hatchling.build"
 
 [project]
-name = "sase-research"
+name = "sase-research-artifacts"
 version = "0.1.0"
 description = "Research artifact-reference and file-hook provider plugin for sase"
 readme = "README.md"
@@ -13,13 +13,14 @@ license-files = ["LICENSE"]
 dependencies = [
     # The sase_artifact_refs/sase_file_hooks provider registry this plugin
     # targets lands on sase master after 0.16.0; bump this floor once a
-    # release containing it reaches PyPI (see docs/development.md).
+    # release containing it reaches PyPI. Local installs use coordinated
+    # source checkouts; see the Justfile.
     "sase>=0.17.0",
 ]
 
 [project.urls]
-Repository = "https://github.com/sase-org/sase-research"
-Issues = "https://github.com/sase-org/sase-research/issues"
+Repository = "https://github.com/sase-org/sase-research-artifacts"
+Issues = "https://github.com/sase-org/sase-research-artifacts/issues"
 
 [project.optional-dependencies]
 dev = [
@@ -32,19 +33,19 @@ dev = [
 ]
 
 [project.entry-points."sase_artifact_refs"]
-research = "sase_research.provider:RESEARCH_REF_PROVIDER"
+research = "sase_research_artifacts.provider:RESEARCH_REF_PROVIDER"
 
 [project.entry-points."sase_file_hooks"]
-research-highlights = "sase_research.provider:RESEARCH_HIGHLIGHTS_HOOK"
+research-highlights = "sase_research_artifacts.provider:RESEARCH_HIGHLIGHTS_HOOK"
 
 [project.entry-points."sase_xprompts"]
-sase_research = "sase_research"
+sase_research_artifacts = "sase_research_artifacts"
 
 [project.entry-points."sase_config"]
-sase_research = "sase_research"
+sase_research_artifacts = "sase_research_artifacts"
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/sase_research"]
+packages = ["src/sase_research_artifacts"]
 
 [tool.ruff]
 target-version = "py312"

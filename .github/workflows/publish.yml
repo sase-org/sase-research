@@ -84,7 +84,7 @@ jobs:
       - uses: dtolnay/rust-toolchain@stable
       - name: Set up Python
         run: uv python install 3.12
-      - name: Install built sase-research wheel into a fresh venv
+      - name: Install built sase-research-artifacts wheel into a fresh venv
         run: |
           uv venv --python 3.12 /tmp/smoke-venv
           printf -- '-e %s\n' "$(realpath .sase-deps/sase)" > /tmp/sase-overrides.txt
@@ -93,19 +93,31 @@ jobs:
       - name: Smoke check
         run: |
           /tmp/smoke-venv/bin/python - <<'PY'
-          from importlib.metadata import entry_points
+          from importlib.metadata import PackageNotFoundError, distribution, entry_points
 
-          import sase_research
+          import sase_research_artifacts
+
+          assert (
+              distribution("sase-research-artifacts").metadata["Name"]
+              == "sase-research-artifacts"
+          )
+          try:
+              # Guard against accidentally installing the old distribution name.
+              distribution("sase-research")
+          except PackageNotFoundError:
+              pass
+          else:
+              raise AssertionError("old sase-research distribution is installed")
 
           expected = {
               "sase_artifact_refs": {
-                  "research": "sase_research.provider:RESEARCH_REF_PROVIDER"
+                  "research": "sase_research_artifacts.provider:RESEARCH_REF_PROVIDER"
               },
               "sase_file_hooks": {
-                  "research-highlights": "sase_research.provider:RESEARCH_HIGHLIGHTS_HOOK"
+                  "research-highlights": "sase_research_artifacts.provider:RESEARCH_HIGHLIGHTS_HOOK"
               },
-              "sase_config": {"sase_research": "sase_research"},
-              "sase_xprompts": {"sase_research": "sase_research"},
+              "sase_config": {"sase_research_artifacts": "sase_research_artifacts"},
+              "sase_xprompts": {"sase_research_artifacts": "sase_research_artifacts"},
           }
 
           discovered = entry_points()
@@ -121,7 +133,7 @@ jobs:
                           f"{group} entry point {name!r}: expected {value!r}, got {actual!r}"
                       )
 
-          assert sase_research
+          assert sase_research_artifacts
           PY
       - name: Assemble the real artifact provider registry
         run: |

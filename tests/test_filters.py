@@ -8,7 +8,7 @@ from __future__ import annotations
 
 from sase.artifact_ref_operations import filter_artifact_ref_paths
 
-from sase_research.provider import (
+from sase_research_artifacts.provider import (
     RESEARCH_HIGHLIGHTS_HOOK_SPEC,
     RESEARCH_REF_PROVIDER_SPEC,
 )

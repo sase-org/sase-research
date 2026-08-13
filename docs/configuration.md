@@ -39,7 +39,7 @@ and digests.
 
 An unresolvable `use:` (the plugin is not installed) fails soft: the role is dropped
 with a `missing_ref_provider` diagnostic rather than raising on the launch path. A
-linked-repo clone of `sase-research` does not install the distribution or register its
+linked-repo clone of `sase-research-artifacts` does not install the distribution or register its
 entry points -- install the package itself.
 
 ## Enabling the `research-highlights` file hook

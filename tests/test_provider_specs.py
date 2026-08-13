@@ -1,6 +1,6 @@
 """Contract tests for the installed research provider specs.
 
-These exercise the real installed ``sase-research`` distribution's entry
+These exercise the real installed ``sase-research-artifacts`` distribution's entry
 points through sase's own registry, sidecar-ref, and file-hook config
 loaders -- not fakes standing in for our plugin. Fakes are only used to
 simulate a *second*, conflicting plugin for the duplicate-diagnostic tests.
@@ -21,7 +21,7 @@ from sase.config.file_hooks import _load_file_hooks
 from sase.config.layers import ConfigLayer
 from sase.sidecar_ref_config import _sidecar_ref_policy_report
 
-from sase_research.provider import (
+from sase_research_artifacts.provider import (
     RESEARCH_HIGHLIGHTS_HOOK_SPEC,
     RESEARCH_REF_PROVIDER_SPEC,
 )
@@ -46,7 +46,7 @@ def test_research_ref_provider_discovered_with_provenance() -> None:
     assert provider.kind == "research"
     assert provider.provenance.group == ARTIFACT_REF_ENTRY_POINT_GROUP
     assert provider.provenance.name == "research"
-    assert provider.provenance.package == "sase-research"
+    assert provider.provenance.package == "sase-research-artifacts"
     assert provider.digest
 
 
@@ -56,7 +56,7 @@ def test_research_highlights_hook_discovered_with_required_command() -> None:
     provider = registry.file_hook_providers_by_id["research-highlights"]
     assert provider.required_fields == ("command",)
     assert provider.provenance.group == FILE_HOOK_ENTRY_POINT_GROUP
-    assert provider.provenance.package == "sase-research"
+    assert provider.provenance.package == "sase-research-artifacts"
     assert provider.template["filters"]["sidecars"] == ["research"]
 
 

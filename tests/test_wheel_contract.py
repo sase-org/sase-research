@@ -7,6 +7,7 @@ source, which takes minutes rather than seconds.
 
 from __future__ import annotations
 
+from email.parser import Parser
 import os
 from pathlib import Path
 import subprocess
@@ -17,8 +18,16 @@ import zipfile
 import pytest
 
 ROOT = Path(__file__).resolve().parents[1]
+DISTRIBUTION_NAME = "sase-research-artifacts"
+PACKAGE_NAME = "sase_research_artifacts"
 
 pytestmark = pytest.mark.wheel
+
+
+def _single_artifact(dist_dir: Path, pattern: str) -> Path:
+    artifacts = list(dist_dir.glob(pattern))
+    assert len(artifacts) == 1, artifacts
+    return artifacts[0]
 
 
 def _resolved_source_dir(env_var: str) -> str:
@@ -42,17 +51,36 @@ def built_distributions(tmp_path_factory: pytest.TempPathFactory) -> Path:
     return dist_dir
 
 
+def test_distribution_artifacts_use_renamed_identity(
+    built_distributions: Path,
+) -> None:
+    wheel = _single_artifact(built_distributions, "*.whl")
+    sdist = _single_artifact(built_distributions, "*.tar.gz")
+
+    assert wheel.name.startswith(f"{PACKAGE_NAME}-")
+    assert sdist.name.startswith(f"{PACKAGE_NAME}-")
+
+    with zipfile.ZipFile(wheel) as archive:
+        names = set(archive.namelist())
+        metadata_path = next(n for n in names if n.endswith(".dist-info/METADATA"))
+        metadata = Parser().parsestr(archive.read(metadata_path).decode())
+
+    assert metadata_path.startswith(f"{PACKAGE_NAME}-")
+    assert metadata["Name"] == DISTRIBUTION_NAME
+    # Guard against accidentally carrying a compatibility package under the old name.
+    assert all("sase_research/" not in name for name in names)
+
+
 def test_wheel_contains_provider_defaults_and_all_five_xprompts(
     built_distributions: Path,
 ) -> None:
-    wheels = list(built_distributions.glob("*.whl"))
-    assert len(wheels) == 1, wheels
+    wheel = _single_artifact(built_distributions, "*.whl")
 
-    with zipfile.ZipFile(wheels[0]) as archive:
+    with zipfile.ZipFile(wheel) as archive:
         names = set(archive.namelist())
 
-    assert "sase_research/provider.py" in names
-    assert "sase_research/default_config.yml" in names
+    assert f"{PACKAGE_NAME}/provider.py" in names
+    assert f"{PACKAGE_NAME}/default_config.yml" in names
     for xprompt in (
         "research.md",
         "research_image.md",
@@ -60,18 +88,21 @@ def test_wheel_contains_provider_defaults_and_all_five_xprompts(
         "research_prompt.md",
         "research_swarm.md",
     ):
-        assert f"sase_research/xprompts/{xprompt}" in names
+        assert f"{PACKAGE_NAME}/xprompts/{xprompt}" in names
 
 
 def test_sdist_contains_provider_defaults_and_all_five_xprompts(
     built_distributions: Path,
 ) -> None:
-    sdists = list(built_distributions.glob("*.tar.gz"))
-    assert len(sdists) == 1, sdists
+    sdist = _single_artifact(built_distributions, "*.tar.gz")
 
-    with tarfile.open(sdists[0]) as archive:
-        names = {Path(member).name for member in archive.getnames()}
+    with tarfile.open(sdist) as archive:
+        members = archive.getnames()
+        names = {Path(member).name for member in members}
 
+    assert all(member.startswith(f"{PACKAGE_NAME}-") for member in members)
+    # Guard against accidentally carrying a compatibility package under the old name.
+    assert all("src/sase_research/" not in member for member in members)
     assert "provider.py" in names
     assert "default_config.yml" in names
     for xprompt in (
@@ -87,11 +118,10 @@ def test_sdist_contains_provider_defaults_and_all_five_xprompts(
 def test_wheel_installs_into_fresh_venv_with_discoverable_entry_points(
     built_distributions: Path, tmp_path: Path
 ) -> None:
-    sase_source = _resolved_source_dir("SASE_RESEARCH_RESOLVED_SASE_SOURCE")
-    sase_core_source = _resolved_source_dir("SASE_RESEARCH_RESOLVED_SASE_CORE_SOURCE")
+    sase_source = _resolved_source_dir("SASE_RESEARCH_ARTIFACTS_RESOLVED_SASE_SOURCE")
+    sase_core_source = _resolved_source_dir("SASE_RESEARCH_ARTIFACTS_RESOLVED_SASE_CORE_SOURCE")
 
-    wheels = list(built_distributions.glob("*.whl"))
-    assert len(wheels) == 1, wheels
+    wheel = _single_artifact(built_distributions, "*.whl")
 
     venv_dir = tmp_path / "smoke-venv"
     subprocess.run(["uv", "venv", "--python", "3.12", str(venv_dir)], check=True)
@@ -108,7 +138,7 @@ def test_wheel_installs_into_fresh_venv_with_discoverable_entry_points(
             str(venv_python),
             "--overrides",
             str(overrides_file),
-            str(wheels[0]),
+            str(wheel),
         ],
         check=True,
     )
@@ -146,20 +176,31 @@ def test_wheel_installs_into_fresh_venv_with_discoverable_entry_points(
 
     smoke_script = """
 import sase.config  # avoid a circular import on a fresh interpreter
-from importlib.metadata import entry_points
+from importlib.metadata import PackageNotFoundError, distribution, entry_points
 
 from sase.artifact_providers import assemble_artifact_provider_registry
 from sase.xprompt.loader_sources import load_xprompts_from_plugins
 from sase.config.loading import load_plugin_configs
 import importlib.resources
+import sase_research_artifacts
+
+assert distribution("sase-research-artifacts").metadata["Name"] == "sase-research-artifacts"
+try:
+    # Guard against accidentally installing the old distribution name.
+    distribution("sase-research")
+except PackageNotFoundError:
+    pass
+else:
+    raise AssertionError("old sase-research distribution is installed")
+assert sase_research_artifacts.RESEARCH_REF_PROVIDER
 
 expected = {
-    "sase_artifact_refs": {"research": "sase_research.provider:RESEARCH_REF_PROVIDER"},
+    "sase_artifact_refs": {"research": "sase_research_artifacts.provider:RESEARCH_REF_PROVIDER"},
     "sase_file_hooks": {
-        "research-highlights": "sase_research.provider:RESEARCH_HIGHLIGHTS_HOOK"
+        "research-highlights": "sase_research_artifacts.provider:RESEARCH_HIGHLIGHTS_HOOK"
     },
-    "sase_config": {"sase_research": "sase_research"},
-    "sase_xprompts": {"sase_research": "sase_research"},
+    "sase_config": {"sase_research_artifacts": "sase_research_artifacts"},
+    "sase_xprompts": {"sase_research_artifacts": "sase_research_artifacts"},
 }
 discovered = entry_points()
 for group, entries in expected.items():
