@@ -28,6 +28,7 @@ RESEARCH_REF_PROVIDER_SPEC: Mapping[str, Any] = {
     "provider": "research",
     "ref": {
         "kind": "research",
+        "icon": "∴",
         "expansion_format": "the {checkout_path} file in the {sidecar_role} artifact repo",
         "properties": {
             "create_time": {"type": "datetime", "source": "markdown_frontmatter"},
