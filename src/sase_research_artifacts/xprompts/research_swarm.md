@@ -10,8 +10,9 @@ input:
     type: word
     default: null
     description:
-      Name of the sase agent (or agents if comma-separated) to wait for before starting
-      the swarm. If null, the swarm will start immediately.
+      Name of the sase agent to wait for before starting the swarm. Quote the value to
+      pass several comma-separated agents (`wait="a,b"`); an unquoted comma is parsed as
+      a separate xprompt argument. If null, the swarm starts immediately.
 ---
 
 %clan(research.{@1}, tribe=research,
