@@ -6,15 +6,23 @@ input:
   - name: prompt
     type: text
     description: Research topic or question for the swarm to investigate.
+  - name: wait
+    type: word
+    default: null
+    description:
+      Name of the sase agent (or agents if comma-separated) to wait for before starting
+      the swarm. If null, the swarm will start immediately.
 ---
 
 %clan(research.{@1}, tribe=research,
 summary=[[[bold]RESEARCH PROMPT:[/bold] {{ prompt }}]]) %id:research.{@1}.cdx
-%wait(priority=20) %model:@research_a {{ prompt }} #research
+%wait(priority=20) %model:@research_a {% if wait %} %wait:{{ wait }} {% endif %}
+{{ prompt }} #research
 
 ---
 
-%id(cld, clan=research.{@1}) %wait(priority=20) %m:@research_b {{ prompt }} #research
+%id(cld, clan=research.{@1}) %wait(priority=20) %m:@research_b {% if wait %}
+%wait:{{ wait }} {% endif %} {{ prompt }} #research
 
 ---
 
