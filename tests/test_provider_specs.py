@@ -239,3 +239,16 @@ def test_spec_literals_match_schema_version_1() -> None:
     assert RESEARCH_HIGHLIGHTS_HOOK_SPEC["schema_version"] == 1
     assert RESEARCH_HIGHLIGHTS_HOOK_SPEC["required"] == ["command"]
     assert "command" not in RESEARCH_HIGHLIGHTS_HOOK_SPEC["file_hook"]
+
+
+def test_research_ref_expansion_format_is_a_pointer_not_path_bound() -> None:
+    from sase.artifact_ref_operations import artifact_ref_expansion_validate
+
+    expansion_format = RESEARCH_REF_PROVIDER_SPEC["ref"]["expansion_format"]
+
+    assert (
+        expansion_format
+        == "the {repo_relative_path} file in the {sidecar_role} sidecar repo"
+    )
+    placeholders = set(artifact_ref_expansion_validate(expansion_format))
+    assert "checkout_path" not in placeholders

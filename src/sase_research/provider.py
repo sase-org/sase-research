@@ -14,6 +14,13 @@ researcher's draft with ``@research:...`` is legitimate. The ``research-highligh
 file hook excludes them, because Bryan does not want a Highlights PDF generated per
 draft -- only for the consolidated report. This divergence is intentional, not a
 porting bug.
+
+The ``research`` ref provider's ``expansion_format`` uses no ``{checkout_path}``
+placeholder, which makes it a *pointer* kind: ``@research:<path>`` expands to prose
+naming the file and its sidecar without resolving a local clone, so a launch never
+materializes the (large) research sidecar just to expand a citation. See
+``plans:202608/document_ref_expansion_format.md`` in the ``sase`` repo for the pointer
+vs. path-bound expansion contract.
 """
 
 from __future__ import annotations
@@ -29,7 +36,7 @@ RESEARCH_REF_PROVIDER_SPEC: Mapping[str, Any] = {
     "ref": {
         "kind": "research",
         "icon": "∴",
-        "expansion_format": "the {checkout_path} file in the {sidecar_role} artifact repo",
+        "expansion_format": "the {repo_relative_path} file in the {sidecar_role} sidecar repo",
         "properties": {
             "create_time": {"type": "datetime", "source": "markdown_frontmatter"},
             "updated_time": {"type": "datetime", "source": "markdown_frontmatter"},
