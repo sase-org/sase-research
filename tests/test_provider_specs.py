@@ -137,6 +137,51 @@ def test_use_and_inline_normalize_identically(tmp_path: Path) -> None:
     assert use_policy.path_globs == ("2026/**/*.md",)
 
 
+def test_pane_only_override_preserves_provider_digest(tmp_path: Path) -> None:
+    base_report = _sidecar_ref_policy_report(
+        {
+            "repos": {
+                "sidecar": {
+                    "custom": {"research": {"ref": {"use": "research"}}}
+                }
+            }
+        },
+        primary_workspace_dir=tmp_path / "workspace",
+        roles=("research",),
+    )
+    override_report = _sidecar_ref_policy_report(
+        {
+            "repos": {
+                "sidecar": {
+                    "custom": {
+                        "research": {
+                            "ref": {
+                                "use": "research",
+                                "pane": {
+                                    "empty_state": {
+                                        "body": "No matching research reports."
+                                    }
+                                },
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        primary_workspace_dir=tmp_path / "workspace",
+        roles=("research",),
+    )
+
+    base_policy = base_report.policies["research"]
+    override_policy = override_report.policies["research"]
+    assert base_policy.digest == override_policy.digest
+    assert base_policy.spec != override_policy.spec
+    assert (
+        override_policy.spec["ref"]["pane"]["empty_state"]["body"]
+        == "No matching research reports."
+    )
+
+
 def test_use_missing_provider_fails_soft(tmp_path: Path) -> None:
     report = _sidecar_ref_policy_report(
         {

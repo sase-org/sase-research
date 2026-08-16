@@ -27,7 +27,8 @@ sase's Rust core at registry-assembly time (`schema_version: 1`):
 
 - `RESEARCH_REF_PROVIDER` implements `artifact_ref_provider_specs`, returning
   `RESEARCH_REF_PROVIDER_SPEC` -- the `research` document ref provider (kind, expansion
-  format, frontmatter properties, inventory globs, publication policy).
+  format, typed frontmatter properties, inventory globs, publication policy, and
+  declarative Artifacts pane presentation).
 - `RESEARCH_HIGHLIGHTS_HOOK` implements `artifact_file_hook_provider_specs`, returning
   `RESEARCH_HIGHLIGHTS_HOOK_SPEC` -- the `research-highlights` file-hook template, with
   `command` deliberately absent and listed in `required`.

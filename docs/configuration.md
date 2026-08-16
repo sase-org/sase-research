@@ -33,9 +33,10 @@ repos:
 ```
 
 Merge rules: scalars replace, mappings deep-merge, and list-valued fields (like
-`inventory.globs`) **replace rather than concatenate** the provider's base list. `use:`
-and an equivalent fully-inline spec always normalize to byte-identical effective specs
-and digests.
+`inventory.globs` or pane row fields) **replace rather than concatenate** the provider's
+base list. `use:` and an equivalent fully-inline spec always normalize to byte-identical
+effective specs and provider digests; pane-only edits are preserved for Python
+presentation and intentionally stay out of the Rust provider digest.
 
 An unresolvable `use:` (the plugin is not installed) fails soft: the role is dropped
 with a `missing_ref_provider` diagnostic rather than raising on the launch path. A

@@ -31,7 +31,8 @@ def test_declared_properties_match_provider_spec() -> None:
     assert set(properties) == {"create_time", "updated_time", "status", "tags"}
     assert properties["create_time"]["type"] == "datetime"
     assert properties["updated_time"]["type"] == "datetime"
-    assert properties["status"]["type"] == "string"
+    assert properties["status"]["type"] == "enum"
+    assert properties["status"]["values"] == ["draft", "review", "final", "archived"]
     assert properties["tags"]["type"] == "string_list"
     assert all(prop["source"] == "markdown_frontmatter" for prop in properties.values())
 
@@ -51,3 +52,20 @@ def test_sample_frontmatter_parses_into_declared_types() -> None:
 def test_detail_fields_are_all_declared_properties() -> None:
     ref = RESEARCH_REF_PROVIDER_SPEC["ref"]
     assert set(ref["detail"]["fields"]) <= set(ref["properties"])
+
+
+def test_pane_declaration_references_safe_declared_fields() -> None:
+    ref = RESEARCH_REF_PROVIDER_SPEC["ref"]
+    pane = ref["pane"]
+
+    assert pane["label"] == "Research"
+    assert pane["row"]["title"] == "title"
+    assert pane["row"]["badges"] == ["status"]
+    assert pane["row"]["secondary"] == ["updated_time"]
+    assert pane["row"]["list_fields"] == ["tags"]
+    assert pane["default_sort"] == [{"field": "updated_time", "direction": "desc"}]
+    assert pane["facets"] == ["status", "tags"]
+    assert pane["group_by"] == "status"
+    assert set(pane["row"]["badges"]) <= set(ref["properties"])
+    assert set(pane["row"]["secondary"]) <= set(ref["properties"])
+    assert set(pane["row"]["list_fields"]) <= set(ref["properties"])

@@ -40,13 +40,35 @@ RESEARCH_REF_PROVIDER_SPEC: Mapping[str, Any] = {
         "properties": {
             "create_time": {"type": "datetime", "source": "markdown_frontmatter"},
             "updated_time": {"type": "datetime", "source": "markdown_frontmatter"},
-            "status": {"type": "string", "source": "markdown_frontmatter"},
+            "status": {
+                "type": "enum",
+                "values": ["draft", "review", "final", "archived"],
+                "source": "markdown_frontmatter",
+            },
             "tags": {"type": "string_list", "source": "markdown_frontmatter"},
         },
         "detail": {"fields": ["status", "create_time", "updated_time", "tags"]},
         "identity": {},
         "inventory": {"globs": ["20*/**/*.md"]},
         "publication": {"link": "vcs_permalink", "referenced_by": "markdown_table"},
+        "pane": {
+            "label": "Research",
+            "description": "Research reports and generated companion artifacts",
+            "order": 40,
+            "row": {
+                "title": "title",
+                "badges": ["status"],
+                "secondary": ["updated_time"],
+                "list_fields": ["tags"],
+            },
+            "default_sort": [{"field": "updated_time", "direction": "desc"}],
+            "facets": ["status", "tags"],
+            "group_by": "status",
+            "empty_state": {
+                "title": "No research",
+                "body": "No research documents match the current project scope and filters.",
+            },
+        },
     },
 }
 
