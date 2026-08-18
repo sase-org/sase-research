@@ -10,7 +10,8 @@
 
 ## Enabling the `research` ref provider
 
-Point a project's `research` sidecar role at this plugin with `use:`:
+Point a project's `research` sidecar role at this plugin with a plugin-qualified
+`use:` (`<distribution>@<id>`). A bare id fails soft with `missing_use_prefix`:
 
 ```yaml
 repos:
@@ -18,7 +19,7 @@ repos:
     custom:
       research:
         ref:
-          use: research
+          use: sase-research-artifacts@research
 ```
 
 Override individual fields without repeating the whole spec:
@@ -29,7 +30,7 @@ repos:
     custom:
       research:
         ref:
-          use: research
+          use: sase-research-artifacts@research
           inventory:
             globs: ["20*/**/*.md", "!20*/scratch/**"]
 ```
@@ -49,7 +50,7 @@ entry points -- install the package itself.
 
 ```yaml
 file_hooks:
-  - use: research-highlights
+  - use: sase-research-artifacts@research-highlights
     command: bob highlights create --include-id
 ```
 

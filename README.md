@@ -42,7 +42,7 @@ repos:
     custom:
       research:
         ref:
-          use: research
+          use: sase-research-artifacts@research
 ```
 
 Wire the file hook the same way, supplying the one field the provider deliberately
@@ -50,7 +50,7 @@ leaves unset -- the actual command is local to your machine:
 
 ```yaml
 file_hooks:
-  - use: research-highlights
+  - use: sase-research-artifacts@research-highlights
     command: bob highlights create --include-id
 ```
 
@@ -81,7 +81,7 @@ because citing a specific researcher's draft with `@research:...` is legitimate;
 hook excludes them because a Highlights PDF per draft is noise. This is not a porting bug.
 
 `command` is intentionally left unset in the packaged template and marked `required`, so
-`use: research-highlights` without a local `command:` override fails soft with a
+`use: sase-research-artifacts@research-highlights` without a local `command:` override fails soft with a
 diagnostic rather than running someone else's command on your machine.
 
 ## Xprompts

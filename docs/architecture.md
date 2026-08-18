@@ -40,7 +40,7 @@ event.
 ## Reference Resolution
 
 A project opts into the `research` ref provider per sidecar role, either with one line
-(`ref: {use: research}`) or a fully inline spec. Both spellings normalize to the same
+(`ref: {use: sase-research-artifacts@research}`) or a fully inline spec. Both spellings normalize to the same
 effective policy -- see `docs/configuration.md`.
 
 ## Xprompt and Default-Config Discovery

@@ -99,7 +99,7 @@ def test_use_and_inline_normalize_identically(tmp_path: Path) -> None:
                         "research": {
                             "description": "Research docs.",
                             "ref": {
-                                "use": "research",
+                                "use": "sase-research-artifacts@research",
                                 "inventory": {"globs": ["2026/**/*.md"]},
                             },
                         }
@@ -142,7 +142,11 @@ def test_pane_only_override_preserves_provider_digest(tmp_path: Path) -> None:
         {
             "repos": {
                 "sidecar": {
-                    "custom": {"research": {"ref": {"use": "research"}}}
+                    "custom": {
+                        "research": {
+                            "ref": {"use": "sase-research-artifacts@research"}
+                        }
+                    }
                 }
             }
         },
@@ -156,7 +160,7 @@ def test_pane_only_override_preserves_provider_digest(tmp_path: Path) -> None:
                     "custom": {
                         "research": {
                             "ref": {
-                                "use": "research",
+                                "use": "sase-research-artifacts@research",
                                 "pane": {
                                     "empty_state": {
                                         "body": "No matching research reports."
@@ -190,7 +194,9 @@ def test_use_missing_provider_fails_soft(tmp_path: Path) -> None:
                     "custom": {
                         "research": {
                             "description": "Research docs.",
-                            "ref": {"use": "not-a-real-provider"},
+                            "ref": {
+                                "use": "sase-research-artifacts@not-a-real-provider"
+                            },
                         }
                     }
                 }
@@ -211,7 +217,7 @@ def test_research_highlights_use_resolves_with_local_command(
         _config_layer(
             [
                 {
-                    "use": "research-highlights",
+                    "use": "sase-research-artifacts@research-highlights",
                     "command": "bob highlights create --include-id",
                 }
             ]
@@ -241,7 +247,7 @@ def test_research_highlights_use_without_command_fails_soft(
 ) -> None:
     import logging
 
-    layers = [_config_layer([{"use": "research-highlights"}])]
+    layers = [_config_layer([{"use": "sase-research-artifacts@research-highlights"}])]
     monkeypatch.setattr(
         "sase.config.file_hooks.current_config_token", lambda: ("token-b",)
     )
@@ -261,7 +267,7 @@ def test_research_highlights_local_filters_replace_not_concatenate(
         _config_layer(
             [
                 {
-                    "use": "research-highlights",
+                    "use": "sase-research-artifacts@research-highlights",
                     "command": "bob highlights create --include-id",
                     "filters": {"path_globs": ["final/**/*.md"]},
                 }
