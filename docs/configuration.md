@@ -4,7 +4,9 @@
 
 - Python 3.12+
 - `sase>=0.17.0` (the first release with the `sase_artifact_refs` / `sase_file_hooks`
-  provider registry)
+  provider registry). That floor has not reached PyPI yet; local and CI installs
+  route `sase` to a coordinated source checkout instead of asking the index for it
+  (see [README Development](../README.md#development)).
 
 ## Enabling the `research` ref provider
 
