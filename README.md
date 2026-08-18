@@ -88,7 +88,9 @@ diagnostic rather than running someone else's command on your machine.
 - `#research/prompt` -- research prior art and alternatives for a prompt, then `#research`
   it.
 - `#research_swarm` -- launch two independent researchers plus a lead who consolidates
-  their reports and generates an infographic; a four-segment xprompt swarm.
+  their reports and generates an infographic; a four-segment xprompt swarm. Optional
+  `wait` names agent(s) both researchers should wait on before starting; quote the
+  value when listing several (`wait="a,b"`).
 
 ## Defaults
 
