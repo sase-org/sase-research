@@ -13,7 +13,8 @@ aliases, and `#research*` xprompts.
 just install    # Install in editable mode with dev deps
 just lint       # ruff check + mypy
 just fmt        # Auto-format
-just test       # pytest
+just test       # pytest (excludes the slow wheel contract test)
+just test-wheel # Build a real wheel, install it fresh, verify entry points/resources
 just check      # lint + test
 ```
 
