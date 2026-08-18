@@ -11,6 +11,10 @@ usable from agent workflows.
 
 ## Installation
 
+Requires Python 3.12+ and `sase>=0.17.0` (the first release with the
+`sase_artifact_refs` / `sase_file_hooks` provider registry); see
+[docs/configuration.md](docs/configuration.md#requirements).
+
 ```bash
 pip install sase-research-artifacts
 ```
