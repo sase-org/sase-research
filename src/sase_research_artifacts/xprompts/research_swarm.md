@@ -13,21 +13,30 @@ input:
       Name of the sase agent to wait for before starting the swarm. Quote the value to
       pass several comma-separated agents (`wait="a,b"`); an unquoted comma is parsed as
       a separate xprompt argument. If null, the swarm starts immediately.
+  - name: priority
+    type: int
+    default: 20
+    description:
+      Runner-queue priority passed to every segment's `%wait(priority=...)`. Lower
+      numbers start first. Defaults to 20, the swarm's current hard-coded value
+      (deprioritized versus SASE's implicit 10). Must be a non-negative integer;
+      `%wait` rejects anything else.
 ---
 
 %clan(research.{@1}, tribe=research,
 summary=[[[bold]RESEARCH PROMPT:[/bold] {{ prompt }}]]) %id:research.{@1}.cdx
-%wait(priority=20) %model:@research_a {% if wait %} %wait:{{ wait }} {% endif %}
+%wait(priority={{ priority }}) %model:@research_a {% if wait %}
+%wait:{{ wait }} {% endif %}
 {{ prompt }} #research
 
 ---
 
-%id(cld, clan=research.{@1}) %wait(priority=20) %m:@research_b {% if wait %}
+%id(cld, clan=research.{@1}) %wait(priority={{ priority }}) %m:@research_b {% if wait %}
 %wait:{{ wait }} {% endif %} {{ prompt }} #research
 
 ---
 
-%id(final, clan=research.{@1}) %wait(priority=20) %m:@research_lead
+%id(final, clan=research.{@1}) %wait(priority={{ priority }}) %m:@research_lead
 %wait:research.{@1}.cdx %wait:research.{@1}.cld
 
 You are the lead researcher: two independent researchers have reported on the request
@@ -73,5 +82,5 @@ Final layout:
 
 ---
 
-%id(image, clan=research.{@1}) %wait(priority=20) %model:@image
+%id(image, clan=research.{@1}) %wait(priority={{ priority }}) %model:@image
 %wait:research.{@1}.final #fork:research.{@1}.final #research/image

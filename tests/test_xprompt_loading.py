@@ -43,9 +43,12 @@ def test_research_swarm_declares_typed_input() -> None:
     assert [(arg.name, arg.type.value) for arg in xp.inputs] == [
         ("prompt", "text"),
         ("wait", "word"),
+        ("priority", "int"),
     ]
     assert xp.inputs[0].default is UNSET
     assert xp.inputs[1].default is None
+    assert xp.inputs[2].default == 20
+    assert isinstance(xp.inputs[2].default, int)
 
 
 def test_research_swarm_has_four_top_level_segments() -> None:
@@ -93,6 +96,8 @@ def test_research_swarm_wait_argument_gates_researchers_only() -> None:
 
     assert "%wait:research.0f.final" not in final
     assert "%wait:research.0f.final" not in image
+    assert "%wait(priority=20)" in final
+    assert "%wait(priority=20)" in image
     assert "%wait:research.{@1}.cdx" in final
     assert "%wait:research.{@1}.cld" in final
     assert "%wait:research.{@1}.final" in image
@@ -106,7 +111,53 @@ def test_research_swarm_omitted_wait_leaves_researchers_ungated() -> None:
     assert "%wait:" not in cld
     assert "%wait(priority=20)" in cdx
     assert "%wait(priority=20)" in cld
+    assert "%wait(priority=20)" in final
+    assert "%wait(priority=20)" in image
     assert "%model:@image" in image
     assert all("{%" not in segment for segment in (cdx, cld, final, image))
-    assert "{{ wait }}" not in cdx
-    assert "{{ wait }}" not in cld
+    assert all("{{ wait }}" not in segment for segment in (cdx, cld, final, image))
+    assert all("{{ priority }}" not in segment for segment in (cdx, cld, final, image))
+
+
+def test_research_swarm_priority_override_applies_to_every_segment() -> None:
+    cdx, cld, final, image = _swarm_segments({"priority": "5"})
+
+    for segment in (cdx, cld, final, image):
+        assert "%wait(priority=5)" in segment
+        assert "%wait(priority=20)" not in segment
+
+    assert "%clan(research.{@1}" in cdx
+    assert "%id:research.{@1}.cdx" in cdx
+    assert "%model:@research_a" in cdx
+
+    assert "%id(cld, clan=research.{@1})" in cld
+    assert "%m:@research_b" in cld
+
+    assert "%id(final, clan=research.{@1})" in final
+    assert "%m:@research_lead" in final
+    assert "%wait:research.{@1}.cdx" in final
+    assert "%wait:research.{@1}.cld" in final
+
+    assert "%id(image, clan=research.{@1})" in image
+    assert "%wait:research.{@1}.final" in image
+    assert "#fork:research.{@1}.final" in image
+    assert "#research/image" in image
+    assert "%model:@image" in image
+
+
+def test_research_swarm_priority_override_composes_with_wait() -> None:
+    cdx, cld, final, image = _swarm_segments(
+        {"wait": "research.0f.final", "priority": "5"}
+    )
+
+    assert "%wait(priority=5)" in cdx
+    assert "%wait:research.0f.final" in cdx
+    assert cdx.count("priority=") == 1
+    assert "%wait(priority=5)" in cld
+    assert "%wait:research.0f.final" in cld
+    assert cld.count("priority=") == 1
+
+    assert "%wait(priority=5)" in final
+    assert "%wait:research.0f.final" not in final
+    assert "%wait(priority=5)" in image
+    assert "%wait:research.0f.final" not in image

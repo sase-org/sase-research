@@ -30,15 +30,17 @@ recommendation, then hands off to `#research` to write it up.
 
 ### Input
 
-| Name     | Type | Description                                          |
-| -------- | ---- | ---------------------------------------------------- |
-| `prompt` | text | Research topic or question for the swarm to investigate |
-| `wait`   | word | Optional agent(s) to wait for before the swarm starts |
+| Name       | Type | Description                                                     |
+| ---------- | ---- | --------------------------------------------------------------- |
+| `prompt`   | text | Research topic or question for the swarm to investigate         |
+| `wait`     | word | Optional agent(s) to wait for before the swarm starts           |
+| `priority` | int  | Optional runner-queue priority for every segment (default 20)   |
 
 Quote `wait` when passing several comma-separated agents (`wait="a,b"`); an unquoted
 comma is parsed as a separate xprompt argument.
 
-A four-segment xprompt swarm:
+A four-segment xprompt swarm. All four members honor `priority` (unlike `wait`, which
+gates only `cdx`/`cld`). Lower numbers start first.
 
 1. **`<clan>.cdx`** -- the primary researcher (`@research_a`), tagged with the
    `research` tribe; when supplied, also waits on the `wait` argument's agent(s).
