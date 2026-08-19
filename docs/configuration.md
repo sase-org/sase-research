@@ -69,7 +69,8 @@ missing field rather than running an unset command.
 Installing this plugin also contributes, through the `sase_config` entry point:
 
 - Model aliases `research_a` (primary researcher), `research_b` (second-opinion
-  researcher), and `research_lead` (consolidator), all in the `researchers` bucket.
+  researcher), `research_lead` (consolidator), and `image` (infographic agent), all in
+  the `researchers` bucket.
 - The `research` tribe's display config (icon, color, description).
 
 These are ordinary default-config values and are overridden by project or user config

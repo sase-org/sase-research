@@ -73,5 +73,5 @@ Final layout:
 
 ---
 
-%id(image, clan=research.{@1}) %wait(priority=20) %model:codex/gpt-5.6-sol
+%id(image, clan=research.{@1}) %wait(priority=20) %model:@image
 %wait:research.{@1}.final #fork:research.{@1}.final #research/image

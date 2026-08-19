@@ -28,8 +28,8 @@ just check      # lint + test
   `#research/more`, `#research/prompt`, and `#research_swarm` xprompts, discovered
   through the `sase_xprompts` entry point.
 - `src/sase_research_artifacts/default_config.yml` — the `research_a`/`research_b`/
-  `research_lead` model aliases, the `researchers` bucket, and the `research` tribe
-  display config, discovered through the `sase_config` entry point.
+  `research_lead`/`image` model aliases, the `researchers` bucket, and the `research`
+  tribe display config, discovered through the `sase_config` entry point.
 - Depends on `sase>=0.17.0` (the first sase release with the `sase_artifact_refs` /
   `sase_file_hooks` provider registry).
 

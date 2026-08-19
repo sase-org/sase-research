@@ -71,6 +71,8 @@ def test_research_swarm_dependency_graph_preserved() -> None:
     assert "%wait:research.{@1}.final" in image
     assert "#fork:research.{@1}.final" in image
     assert "#research/image" in image
+    assert "%model:@image" in image
+    assert "%model:codex/gpt-5.6-sol" not in image
 
 
 def test_research_swarm_wait_argument_gates_researchers_only() -> None:
@@ -94,6 +96,7 @@ def test_research_swarm_wait_argument_gates_researchers_only() -> None:
     assert "%wait:research.{@1}.cdx" in final
     assert "%wait:research.{@1}.cld" in final
     assert "%wait:research.{@1}.final" in image
+    assert "%model:@image" in image
 
 
 def test_research_swarm_omitted_wait_leaves_researchers_ungated() -> None:
@@ -103,6 +106,7 @@ def test_research_swarm_omitted_wait_leaves_researchers_ungated() -> None:
     assert "%wait:" not in cld
     assert "%wait(priority=20)" in cdx
     assert "%wait(priority=20)" in cld
+    assert "%model:@image" in image
     assert all("{%" not in segment for segment in (cdx, cld, final, image))
     assert "{{ wait }}" not in cdx
     assert "{{ wait }}" not in cld

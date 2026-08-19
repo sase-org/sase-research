@@ -27,9 +27,15 @@ def test_default_config_loads_expected_model_aliases_and_bucket() -> None:
     assert custom["research_b"]["bucket"] == "researchers"
     assert custom["research_lead"]["model"] == "@smartest"
     assert custom["research_lead"]["bucket"] == "researchers"
+    assert custom["image"]["model"] == "codex/gpt-5.6-sol@xhigh | grok/grok-4.6@xhigh"
+    assert custom["image"]["bucket"] == "researchers"
+    assert custom["image"]["description"]
 
     buckets = config["llm_provider"]["model_aliases"]["buckets"]
     assert "researchers" in buckets
+    researchers_description = buckets["researchers"]["description"]
+    assert researchers_description
+    assert "infographic" in researchers_description.lower()
 
 
 def test_default_config_declares_research_tribe() -> None:

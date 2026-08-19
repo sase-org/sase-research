@@ -7,8 +7,8 @@ Writes the current research to a new markdown file under
 
 ## `#research/image` -- Generate an Infographic
 
-Generates an infographic (via GPT image) illustrating a research markdown file's main
-points, writing the image alongside the source file.
+Generates an infographic illustrating a research markdown file's main points, writing
+the image alongside the source file.
 
 ## `#research/more` -- Extend Existing Research
 
@@ -50,7 +50,7 @@ A four-segment xprompt swarm:
    move to `<name>__a.md` / `<name>__b.md`; the consolidated report is
    `<name>/<name>.md`.
 4. **`<clan>.image`** -- waits on and forks from the lead's segment, then runs
-   `#research/image` against the consolidated report.
+   `#research/image` against the consolidated report using `@image`.
 
-Depends on the `research_a` / `research_b` / `research_lead` model aliases and the
-`researchers` bucket from this plugin's default config.
+Depends on the `research_a` / `research_b` / `research_lead` / `image` model aliases
+and the `researchers` bucket from this plugin's default config.
