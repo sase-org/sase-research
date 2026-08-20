@@ -4,4 +4,4 @@ description: Generate an infographic illustrating a research markdown file's mai
 ---
 
 Generate an infographic that illustrates the main points made in this research markdown
-file. Write the image to a new file in the same directory.
+file. Write the image to `<source-stem>_infographic.png` in the same directory.

@@ -41,6 +41,10 @@ base list. `use:` and an equivalent fully-inline spec always normalize to byte-i
 effective specs and provider digests; pane-only edits are preserved for Python
 presentation and intentionally stay out of the Rust provider digest.
 
+The base inventory deliberately excludes generated infographic companion Markdown pages,
+including `*_infographic.md` and disambiguated binary pages such as `*.png.md`, so link
+companions do not appear as research reports.
+
 An unresolvable `use:` (the plugin is not installed) fails soft: the role is dropped
 with a `missing_ref_provider` diagnostic rather than raising on the launch path. A
 linked-repo clone of `sase-research-artifacts` does not install the distribution or register its

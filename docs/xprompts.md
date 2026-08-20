@@ -8,7 +8,7 @@ Writes the current research to a new markdown file under
 ## `#research/image` -- Generate an Infographic
 
 Generates an infographic illustrating a research markdown file's main points, writing
-the image alongside the source file.
+`<source-stem>_infographic.png` alongside the source file.
 
 ## `#research/more` -- Extend Existing Research
 

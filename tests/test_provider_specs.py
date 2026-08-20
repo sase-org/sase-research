@@ -143,9 +143,7 @@ def test_pane_only_override_preserves_provider_digest(tmp_path: Path) -> None:
             "repos": {
                 "sidecar": {
                     "custom": {
-                        "research": {
-                            "ref": {"use": "sase-research-artifacts@research"}
-                        }
+                        "research": {"ref": {"use": "sase-research-artifacts@research"}}
                     }
                 }
             }
@@ -236,7 +234,18 @@ def test_research_highlights_use_resolves_with_local_command(
     assert hook.command == "bob highlights create --include-id"
     assert hook.timeout_seconds == 120
     assert hook.filters.sidecars == ("research",)
-    assert hook.filters.path_globs == ("20*/**/*.md", "!20*/*/*__*.md")
+    assert hook.filters.path_globs == (
+        "20*/**/*.md",
+        "!20*/*/*__*.md",
+        "!20*/**/*_infographic.md",
+        "!20*/**/*.png.md",
+        "!20*/**/*.jpg.md",
+        "!20*/**/*.jpeg.md",
+        "!20*/**/*.gif.md",
+        "!20*/**/*.webp.md",
+        "!20*/**/*.svg.md",
+        "!20*/**/*.pdf.md",
+    )
     assert hook.filters.agent_name_globs == ("!research.*.cld", "!research.*.cdx")
     assert hook.filters.ops == ("ADD",)
 

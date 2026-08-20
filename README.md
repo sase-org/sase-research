@@ -60,13 +60,15 @@ with list-valued fields replacing rather than concatenating.
 
 ### The `research` ref provider
 
-Schema version 1, kind `research`. Inventory: `20*/**/*.md` (every dated report,
-including `__a`/`__b` swarm drafts). Declared frontmatter properties: `create_time` and
-`updated_time` (datetime), `status` (enum: `draft`, `review`, `final`, `archived`),
-`tags` (string list). The provider also declares its Artifacts pane label, row fields,
-updated-time descending sort, status/tags facets, status grouping, and Research-specific
-empty copy. Publication links to the VCS permalink and writes a `Referenced By` table
-back into cited reports.
+Schema version 1, kind `research`. Inventory starts with `20*/**/*.md` (every dated
+report, including `__a`/`__b` swarm drafts) and excludes generated infographic
+companion Markdown such as `*_infographic.md` and disambiguated binary pages such as
+`*.png.md`. Declared frontmatter properties: `create_time` and `updated_time`
+(datetime), `status` (enum: `draft`, `review`, `final`, `archived`), `tags` (string
+list). The provider also declares its Artifacts pane label, row fields, updated-time
+descending sort, status/tags facets, status grouping, and Research-specific empty copy.
+Publication links to the VCS permalink and writes a `Referenced By` table back into
+cited reports.
 
 ### The `research-highlights` file hook
 

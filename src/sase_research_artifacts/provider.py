@@ -8,12 +8,13 @@ registry instantiates every discovered entry point and calls *both* hookspec met
 it regardless of which entry-point group found it, so an object implementing both would
 have its specs collected twice.
 
-Inventory globs intentionally differ between the two providers. The ``research`` ref
-provider's inventory keeps ``__a``/``__b`` swarm drafts, because citing a specific
-researcher's draft with ``@research:...`` is legitimate. The ``research-highlights``
-file hook excludes them, because Bryan does not want a Highlights PDF generated per
-draft -- only for the consolidated report. This divergence is intentional, not a
-porting bug.
+Inventory globs intentionally differ between the two providers. Both ignore generated
+infographic companion Markdown pages so binary link companions do not become reports.
+The ``research`` ref provider's inventory keeps ``__a``/``__b`` swarm drafts, because
+citing a specific researcher's draft with ``@research:...`` is legitimate. The
+``research-highlights`` file hook excludes drafts, because Bryan does not want a
+Highlights PDF generated per draft -- only for the consolidated report. This divergence
+is intentional, not a porting bug.
 
 The ``research`` ref provider's ``expansion_format`` uses no ``{checkout_path}``
 placeholder, which makes it a *pointer* kind: ``@research:<path>`` expands to prose
@@ -29,6 +30,21 @@ from collections.abc import Mapping
 from typing import Any
 
 from sase.artifact_providers import hookimpl
+
+_COMPANION_MARKDOWN_EXCLUDE_GLOBS = [
+    "!20*/**/*_infographic.md",
+    "!20*/**/*.png.md",
+    "!20*/**/*.jpg.md",
+    "!20*/**/*.jpeg.md",
+    "!20*/**/*.gif.md",
+    "!20*/**/*.webp.md",
+    "!20*/**/*.svg.md",
+    "!20*/**/*.pdf.md",
+]
+_RESEARCH_INVENTORY_GLOBS = [
+    "20*/**/*.md",
+    *_COMPANION_MARKDOWN_EXCLUDE_GLOBS,
+]
 
 RESEARCH_REF_PROVIDER_SPEC: Mapping[str, Any] = {
     "schema_version": 1,
@@ -49,7 +65,7 @@ RESEARCH_REF_PROVIDER_SPEC: Mapping[str, Any] = {
         },
         "detail": {"fields": ["status", "create_time", "updated_time", "tags"]},
         "identity": {},
-        "inventory": {"globs": ["20*/**/*.md"]},
+        "inventory": {"globs": _RESEARCH_INVENTORY_GLOBS},
         "publication": {"link": "vcs_permalink", "referenced_by": "markdown_table"},
         "pane": {
             "label": "Research",
@@ -83,7 +99,11 @@ RESEARCH_HIGHLIGHTS_HOOK_SPEC: Mapping[str, Any] = {
         ),
         "filters": {
             "sidecars": ["research"],
-            "path_globs": ["20*/**/*.md", "!20*/*/*__*.md"],
+            "path_globs": [
+                "20*/**/*.md",
+                "!20*/*/*__*.md",
+                *_COMPANION_MARKDOWN_EXCLUDE_GLOBS,
+            ],
             "agent_name_globs": ["!research.*.cld", "!research.*.cdx"],
             "ops": ["ADD"],
         },
