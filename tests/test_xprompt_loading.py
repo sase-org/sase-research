@@ -4,7 +4,10 @@ the swarm's segment count and wait/fork dependency graph survive packaging.
 
 from __future__ import annotations
 
+from unittest.mock import patch
+
 from sase.agent.multi_prompt import split_segments_protecting_fences
+from sase.agent.xprompt_swarm import expand_xprompt_swarms_with_metadata
 from sase.xprompt.loader_sources import load_xprompts_from_plugins
 from sase.xprompt.models import UNSET
 from sase.xprompt.processor import expand_single_xprompt
@@ -34,8 +37,16 @@ def test_all_five_research_xprompts_load() -> None:
 
 
 def test_research_prompt_declares_typed_input() -> None:
-    xp = _research_xprompts()["research/prompt"]
+    xprompts = _research_xprompts()
+
+    xp = xprompts["research/prompt"]
     assert [(arg.name, arg.type.value) for arg in xp.inputs] == [("prompt", "text")]
+
+    research = xprompts["research"]
+    assert [(arg.name, arg.type.value) for arg in research.inputs] == [
+        ("report_target", "path")
+    ]
+    assert research.inputs[0].default is None
 
 
 def test_research_swarm_declares_typed_input() -> None:
@@ -86,13 +97,13 @@ def test_research_swarm_wait_argument_gates_researchers_only() -> None:
     assert "%wait(priority=20)" in cdx
     assert "%model:@research_a" in cdx
     assert "%wait:research.0f.final" in cdx
-    assert "some topic #research" in cdx
+    assert "some topic #research(report_target=research.{@1}.cdx.md)" in cdx
 
     assert "%id(cld, clan=research.{@1})" in cld
     assert "%wait(priority=20)" in cld
     assert "%m:@research_b" in cld
     assert "%wait:research.0f.final" in cld
-    assert "some topic #research" in cld
+    assert "some topic #research(report_target=research.{@1}.cld.md)" in cld
 
     assert "%wait:research.0f.final" not in final
     assert "%wait:research.0f.final" not in image
@@ -161,3 +172,42 @@ def test_research_swarm_priority_override_composes_with_wait() -> None:
     assert "%wait:research.0f.final" not in final
     assert "%wait(priority=5)" in image
     assert "%wait:research.0f.final" not in image
+
+
+def test_research_swarm_dispatches_distinct_deterministic_report_targets() -> None:
+    """Two identical dispatches under one clock get distinct report targets."""
+    with patch("sase.core.time.generate_timestamp", return_value="260820_161407"):
+        first_cdx, first_cld, _first_final, _first_image, second_cdx, second_cld, *_ = (
+            [
+                record.prompt
+                for record in expand_xprompt_swarms_with_metadata(
+                    [
+                        "#!research_swarm: some topic",
+                        "#!research_swarm: some topic",
+                    ]
+                )
+            ]
+        )
+
+    first_marker = "{@research.swarm.260820.161407.0.1!}"
+    second_marker = "{@research.swarm.260820.161407.1.1!}"
+    assert f"%id:research.{first_marker}.cdx" in first_cdx
+    assert f"%id(cld, clan=research.{first_marker})" in first_cld
+    assert f"%id:research.{second_marker}.cdx" in second_cdx
+    assert f"%id(cld, clan=research.{second_marker})" in second_cld
+
+    targets = {
+        f"research.{first_marker}.cdx.md",
+        f"research.{first_marker}.cld.md",
+        f"research.{second_marker}.cdx.md",
+        f"research.{second_marker}.cld.md",
+    }
+    for target in targets:
+        assert f"report_target={target}" in "\n".join(
+            (first_cdx, first_cld, second_cdx, second_cld)
+        )
+
+    assert len(targets) == 4
+    assert f"%wait:research.{first_marker}.cdx" in _first_final
+    assert f"%wait:research.{first_marker}.cld" in _first_final
+    assert f"%wait:research.{first_marker}.final" in _first_image

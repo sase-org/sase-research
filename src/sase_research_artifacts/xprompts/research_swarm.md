@@ -27,12 +27,12 @@ input:
 summary=[[[bold]RESEARCH PROMPT:[/bold] {{ prompt }}]]) %id:research.{@1}.cdx
 %wait(priority={{ priority }}) %model:@research_a {% if wait %}
 %wait:{{ wait }} {% endif %}
-{{ prompt }} #research
+{{ prompt }} #research(report_target=research.{@1}.cdx.md)
 
 ---
 
 %id(cld, clan=research.{@1}) %wait(priority={{ priority }}) %m:@research_b {% if wait %}
-%wait:{{ wait }} {% endif %} {{ prompt }} #research
+%wait:{{ wait }} {% endif %} {{ prompt }} #research(report_target=research.{@1}.cld.md)
 
 ---
 
