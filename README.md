@@ -96,8 +96,7 @@ diagnostic rather than running someone else's command on your machine.
 - `#research_swarm` -- launch two independent researchers plus a lead who consolidates
   their reports and generates an infographic; a four-segment xprompt swarm. Optional
   `wait` names agent(s) both researchers should wait on before starting; quote the
-  value when listing several (`wait="a,b"`). Optional `priority` (default 20) sets
-  every segment's `%wait(priority=...)` runner-queue priority.
+  value when listing several (`wait="a,b"`).
 
 ## Defaults
 
