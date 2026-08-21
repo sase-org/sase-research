@@ -26,6 +26,14 @@ def _swarm_segments(named_args: dict[str, str]) -> list[str]:
     return split_segments_protecting_fences(body)
 
 
+def _assert_each_segment_has_one_priority(segments: list[str], value: int) -> None:
+    marker = f"%wait(priority={value})"
+    for segment in segments:
+        assert segment.count(marker) == 1
+        assert "{%" not in segment
+        assert "{{ priority }}" not in segment
+
+
 def test_all_five_research_xprompts_load() -> None:
     assert set(_research_xprompts()) == {
         "research",
@@ -54,9 +62,11 @@ def test_research_swarm_declares_typed_input() -> None:
     assert [(arg.name, arg.type.value) for arg in xp.inputs] == [
         ("prompt", "text"),
         ("wait", "word"),
+        ("priority", "int"),
     ]
     assert xp.inputs[0].default is UNSET
     assert xp.inputs[1].default is None
+    assert xp.inputs[2].default is None
 
 
 def test_research_swarm_has_four_top_level_segments() -> None:
@@ -84,7 +94,11 @@ def test_research_swarm_dependency_graph_preserved() -> None:
     assert "#research/image" in image
     assert "%model:@image" in image
     assert "%model:codex/gpt-5.6-sol" not in image
-    assert all("priority=" not in segment for segment in (cdx, cld, final, image))
+    assert all("priority is not none" in segment for segment in (cdx, cld, final, image))
+    assert all(
+        "%wait(priority={{ priority }})" in segment
+        for segment in (cdx, cld, final, image)
+    )
 
 
 def test_research_swarm_wait_argument_gates_researchers_only() -> None:
@@ -161,3 +175,48 @@ def test_research_swarm_dispatches_distinct_deterministic_report_targets() -> No
     assert f"%wait:research.{first_marker}.cdx" in _first_final
     assert f"%wait:research.{first_marker}.cld" in _first_final
     assert f"%wait:research.{first_marker}.final" in _first_image
+
+
+def test_research_swarm_omitted_priority_leaves_implicit_queue() -> None:
+    cdx, cld, final, image = _swarm_segments({})
+
+    assert all("priority=" not in segment for segment in (cdx, cld, final, image))
+    assert all("{%" not in segment for segment in (cdx, cld, final, image))
+    assert all("{{ priority }}" not in segment for segment in (cdx, cld, final, image))
+    assert "%wait:research.{@1}.cdx" in final
+    assert "%wait:research.{@1}.cld" in final
+    assert "%wait:research.{@1}.final" in image
+    assert "#fork:research.{@1}.final" in image
+
+
+def test_research_swarm_supplied_priority_renders_on_every_agent() -> None:
+    cdx, cld, final, image = _swarm_segments({"priority": "5"})
+    _assert_each_segment_has_one_priority([cdx, cld, final, image], 5)
+    assert "%wait:" not in cdx
+    assert "%wait:" not in cld
+    assert "%wait:research.{@1}.cdx" in final
+    assert "%wait:research.{@1}.cld" in final
+    assert "%wait:research.{@1}.final" in image
+    assert "#fork:research.{@1}.final" in image
+
+
+def test_research_swarm_priority_zero_is_not_omission() -> None:
+    cdx, cld, final, image = _swarm_segments({"priority": "0"})
+    _assert_each_segment_has_one_priority([cdx, cld, final, image], 0)
+
+
+def test_research_swarm_priority_composes_with_wait() -> None:
+    cdx, cld, final, image = _swarm_segments(
+        {"wait": "research.0f.final", "priority": "5"}
+    )
+    _assert_each_segment_has_one_priority([cdx, cld, final, image], 5)
+
+    assert "%wait:research.0f.final" in cdx
+    assert "%wait:research.0f.final" in cld
+    assert "%wait:research.0f.final" not in final
+    assert "%wait:research.0f.final" not in image
+    assert "%wait:research.{@1}.cdx" in final
+    assert "%wait:research.{@1}.cld" in final
+    assert "%wait:research.{@1}.final" in image
+    assert "#fork:research.{@1}.final" in image
+    assert "%model:@image" in image

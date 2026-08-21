@@ -13,23 +13,32 @@ input:
       Name of the sase agent to wait for before starting the swarm. Quote the value to
       pass several comma-separated agents (`wait="a,b"`); an unquoted comma is parsed as
       a separate xprompt argument. If null, the swarm starts immediately.
+  - name: priority
+    type: int
+    default: null
+    description:
+      Optional runner-queue priority applied to every swarm member. Lower numbers start
+      first. If null, the swarm uses SASE's implicit queue priority.
 ---
 
 %clan(research.{@1}, tribe=research,
 summary=[[[bold]RESEARCH PROMPT:[/bold] {{ prompt }}]]) %id:research.{@1}.cdx
 %model:@research_a {% if wait %}
-%wait:{{ wait }} {% endif %}
+%wait:{{ wait }} {% endif %}{% if priority is not none %}
+%wait(priority={{ priority }}) {% endif %}
 {{ prompt }} #research(report_target=research.{@1}.cdx.md)
 
 ---
 
 %id(cld, clan=research.{@1}) %m:@research_b {% if wait %}
-%wait:{{ wait }} {% endif %} {{ prompt }} #research(report_target=research.{@1}.cld.md)
+%wait:{{ wait }} {% endif %}{% if priority is not none %}
+%wait(priority={{ priority }}) {% endif %} {{ prompt }} #research(report_target=research.{@1}.cld.md)
 
 ---
 
 %id(final, clan=research.{@1}) %m:@research_lead
-%wait:research.{@1}.cdx %wait:research.{@1}.cld
+%wait:research.{@1}.cdx %wait:research.{@1}.cld {% if priority is not none %}
+%wait(priority={{ priority }}) {% endif %}
 
 You are the lead researcher: two independent researchers have reported on the request
 below, and you will add your own research and merge all three perspectives into one
@@ -75,4 +84,5 @@ Final layout:
 ---
 
 %id(image, clan=research.{@1}) %model:@image
-%wait:research.{@1}.final #fork:research.{@1}.final #research/image
+%wait:research.{@1}.final {% if priority is not none %}
+%wait(priority={{ priority }}) {% endif %}#fork:research.{@1}.final #research/image

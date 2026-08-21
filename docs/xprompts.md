@@ -30,15 +30,18 @@ recommendation, then hands off to `#research` to write it up.
 
 ### Input
 
-| Name     | Type | Description                                             |
-| -------- | ---- | ------------------------------------------------------- |
-| `prompt` | text | Research topic or question for the swarm to investigate |
-| `wait`   | word | Optional agent(s) to wait for before the swarm starts   |
+| Name       | Type | Description                                                        |
+| ---------- | ---- | ------------------------------------------------------------------ |
+| `prompt`   | text | Research topic or question for the swarm to investigate            |
+| `wait`     | word | Optional agent(s) to wait for before the swarm starts              |
+| `priority` | int  | Optional integer queue priority for all four agents; no default    |
 
 Quote `wait` when passing several comma-separated agents (`wait="a,b"`); an unquoted
 comma is parsed as a separate xprompt argument.
 
-A four-segment xprompt swarm. Optional `wait` gates only `cdx`/`cld`.
+A four-segment xprompt swarm. Optional `wait` gates only `cdx`/`cld`. Optional
+`priority` applies to all four agents when supplied (lower values start first);
+omission uses SASE's implicit queue priority.
 
 1. **`<clan>.cdx`** -- the primary researcher (`@research_a`), tagged with the
    `research` tribe; when supplied, also waits on the `wait` argument's agent(s).
