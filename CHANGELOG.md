@@ -1,5 +1,23 @@
 # Changelog
 
+## [0.2.1](https://github.com/sase-org/sase-research-artifacts/compare/v0.2.0...v0.2.1) (2026-08-22)
+
+
+### Features
+
+* add opt-in priority input to #research_swarm ([d054715](https://github.com/sase-org/sase-research-artifacts/commit/d054715ded7e2882483155d75b69a260c1154890))
+* add optional priority input to #research_swarm ([01a45ed](https://github.com/sase-org/sase-research-artifacts/commit/01a45ed846701df2589b12fe0c2d298891b43018))
+* **config:** route research swarm image launches through [@image](https://github.com/image) ([93e1f55](https://github.com/sase-org/sase-research-artifacts/commit/93e1f55963b195d80431cb9b10ac935bd3fb81bd))
+* remove optional priority input from #research_swarm ([caf12b8](https://github.com/sase-org/sase-research-artifacts/commit/caf12b83968a1cd647c5fcee0b42676d6b263431))
+
+
+### Bug Fixes
+
+* **config:** default research lead to xlarge ([ede2123](https://github.com/sase-org/sase-research-artifacts/commit/ede2123402221754a605ab4b66c2faccb0e29e8f))
+* exclude generated research companions from inventory ([46fe923](https://github.com/sase-org/sase-research-artifacts/commit/46fe9235d1043c9efdfbbffc6cff4c9f4278f5eb))
+* make research report targets deterministic ([83f4c01](https://github.com/sase-org/sase-research-artifacts/commit/83f4c0154d6f5e50d527582c2377eb36bdcb2ff5))
+* **provider:** restrict research highlights producers ([a045047](https://github.com/sase-org/sase-research-artifacts/commit/a045047c76cdd2b762171f8b62a34490839aace8))
+
 ## [0.2.0](https://github.com/sase-org/sase-research-artifacts/compare/v0.1.0...v0.2.0) (2026-08-18)
 
 
