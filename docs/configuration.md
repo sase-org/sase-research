@@ -59,11 +59,17 @@ file_hooks:
 ```
 
 The provider template supplies `description`, `filters` (`sidecars: [research]`,
-`path_globs: ["20*/**/*.md", "!20*/*/*__*.md"]`, `agent_name_globs: ["!research.*.cld",
-"!research.*.cdx"]`, `ops: [ADD]`), and `timeout: 120s`. `command` is deliberately absent
-from the template and listed as `required`: the policy is portable, but the executable
-is local to your machine. Omitting `command` fails soft with a diagnostic naming the
-missing field rather than running an unset command.
+`producers: [commit, sdd, finalizer]`, `path_globs: ["20*/**/*.md",
+"!20*/*/*__*.md"]`, `agent_name_globs: ["!research.*.cld", "!research.*.cdx"]`,
+`ops: [ADD]`), and `timeout: 120s`. `command` is deliberately absent from the template
+and listed as `required`: the policy is portable, but the executable is local to your
+machine. Omitting `command` fails soft with a diagnostic naming the missing field rather
+than running an unset command.
+
+The producer restriction keeps committed-file routes and finalizer repair while
+skipping artifact-copy dispatch. Artifact dispatch executes against durable
+content-addressed copies whose basenames can carry digest suffixes, which would leak
+into Bob's derived PDF basename and marker id.
 
 `name` is not part of the template either -- it defaults to the provider id
 (`research-highlights`) unless you override it locally.

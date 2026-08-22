@@ -31,7 +31,9 @@ sase's Rust core at registry-assembly time (`schema_version: 1`):
   declarative Artifacts pane presentation).
 - `RESEARCH_HIGHLIGHTS_HOOK` implements `artifact_file_hook_provider_specs`, returning
   `RESEARCH_HIGHLIGHTS_HOOK_SPEC` -- the `research-highlights` file-hook template, with
-  `command` deliberately absent and listed in `required`.
+  `command` deliberately absent and listed in `required`. Its filters include
+  `producers: [commit, sdd, finalizer]` so artifact-copy events do not run the
+  basename-sensitive Bob Highlights command against content-addressed artifact paths.
 
 Specs are immutable module-level literals, never built per-call: sase's registry calls
 these hooks once while assembling the config registry, not per keystroke or per file

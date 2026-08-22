@@ -99,6 +99,7 @@ RESEARCH_HIGHLIGHTS_HOOK_SPEC: Mapping[str, Any] = {
         ),
         "filters": {
             "sidecars": ["research"],
+            "producers": ["commit", "sdd", "finalizer"],
             "path_globs": [
                 "20*/**/*.md",
                 "!20*/*/*__*.md",

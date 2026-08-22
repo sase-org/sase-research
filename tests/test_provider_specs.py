@@ -58,6 +58,7 @@ def test_research_highlights_hook_discovered_with_required_command() -> None:
     assert provider.provenance.group == FILE_HOOK_ENTRY_POINT_GROUP
     assert provider.provenance.package == "sase-research-artifacts"
     assert provider.template["filters"]["sidecars"] == ["research"]
+    assert provider.template["filters"]["producers"] == ["commit", "sdd", "finalizer"]
 
 
 def test_duplicate_ref_kind_is_reported_and_skipped() -> None:
@@ -234,6 +235,7 @@ def test_research_highlights_use_resolves_with_local_command(
     assert hook.command == "bob highlights create --include-id"
     assert hook.timeout_seconds == 120
     assert hook.filters.sidecars == ("research",)
+    assert hook.filters.producers == ("commit", "sdd", "finalizer")
     assert hook.filters.path_globs == (
         "20*/**/*.md",
         "!20*/*/*__*.md",
@@ -292,6 +294,7 @@ def test_research_highlights_local_filters_replace_not_concatenate(
 
     assert len(hooks) == 1
     assert hooks[0].filters.path_globs == ("final/**/*.md",)
+    assert hooks[0].filters.producers == ("commit", "sdd", "finalizer")
 
 
 def test_spec_literals_match_schema_version_1() -> None:

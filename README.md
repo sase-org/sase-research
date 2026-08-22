@@ -72,11 +72,14 @@ cited reports.
 
 ### The `research-highlights` file hook
 
-Renders new research reports into Highlights PDFs for the Obsidian reading queue.
-Restricted to the `research` sidecar, `ADD` operations only, and excludes agents matching
-`research.*.cld` / `research.*.cdx` (the swarm's own participants) plus `__a`/`__b` draft
-files -- a Highlights PDF is only wanted for the consolidated report, not each researcher's
-draft.
+Renders new committed research reports into Highlights PDFs for the Obsidian reading
+queue. Restricted to the `research` sidecar, producers `commit`, `sdd`, and
+`finalizer`, `ADD` operations only, and excludes agents matching `research.*.cld` /
+`research.*.cdx` (the swarm's own participants) plus `__a`/`__b` draft files -- a
+Highlights PDF is only wanted for the consolidated report, not each researcher's draft.
+Artifact-copy events are deliberately excluded because detached artifact execution uses
+durable content-addressed paths whose basenames may include digest suffixes; Bob derives
+its PDF basename and marker id from the input Markdown basename.
 
 **The two glob sets differ on purpose.** The ref provider's inventory keeps swarm drafts
 because citing a specific researcher's draft with `@research:...` is legitimate; the file

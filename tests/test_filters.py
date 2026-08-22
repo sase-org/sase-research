@@ -51,3 +51,12 @@ def test_file_hook_globs_exclude_swarm_drafts() -> None:
     assert "202608/widgets/widgets_infographic.md" in result.filtered
     assert "202608/widgets/widgets.png.md" in result.filtered
     assert "notes/scratch.md" in result.filtered
+
+
+def test_file_hook_filters_restrict_to_committed_routes() -> None:
+    filters = RESEARCH_HIGHLIGHTS_HOOK_SPEC["file_hook"]["filters"]
+
+    assert filters["producers"] == ["commit", "sdd", "finalizer"]
+    assert filters["sidecars"] == ["research"]
+    assert filters["ops"] == ["ADD"]
+    assert filters["agent_name_globs"] == ["!research.*.cld", "!research.*.cdx"]
